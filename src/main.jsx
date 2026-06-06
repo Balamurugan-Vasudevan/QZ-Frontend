@@ -1,10 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './styles/styles.css'                                    // ← add this
-import QuestionPaperBuilder from './createQuestions/QuestionPaperBuilder.jsx'
+import './styles/styles.css'
+import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <QuestionPaperBuilder />
+    <App />
   </StrictMode>,
 )

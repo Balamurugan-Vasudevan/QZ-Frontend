@@ -42,7 +42,7 @@ function QuestionPaperDetails({ onSave }) {
       </div>
       <div className="panel-body">
 
-        {/* ── Basic Info ─────────────────────── */}
+        {/* Basic Info */}
         <span className="section-label">Basic Info</span>
 
         <div className="field">
@@ -67,7 +67,7 @@ function QuestionPaperDetails({ onSave }) {
 
         <div className="section-divider" />
 
-        {/* ── Classification ─────────────────── */}
+        {/* Classification */}
         <span className="section-label">Classification</span>
 
         <div className="field">
@@ -102,7 +102,7 @@ function QuestionPaperDetails({ onSave }) {
 
         <div className="section-divider" />
 
-        {/* ── Schedule ───────────────────────── */}
+        {/* Schedule */}
         <span className="section-label">Schedule</span>
 
         <div className="date-time-row">

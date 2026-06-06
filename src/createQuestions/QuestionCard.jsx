@@ -1,6 +1,6 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
-function QuestionCard({ questionNumber, onSave }) {
+function QuestionCard({ questionNumber, editData, isEditing, onSave, onCancelEdit }) {
   const [question, setQuestion] = useState("")
   const [options, setOptions]   = useState([
     { id: 1, text: "" }, { id: 2, text: "" },
@@ -9,6 +9,31 @@ function QuestionCard({ questionNumber, onSave }) {
   const [correctIds, setCorrectIds] = useState([])
   const [errors, setErrors]         = useState({})
   const [nextId, setNextId]         = useState(5)
+
+  // pre-fill form when editing
+  useEffect(() => {
+    if (editData) {
+      setQuestion(editData.question)
+      const mapped = editData.options.map((text, i) => ({ id: i + 1, text }))
+      setOptions(mapped)
+      setCorrectIds(
+        mapped
+          .filter((o) => editData.correctAnswers.includes(o.text))
+          .map((o) => o.id)
+      )
+      setNextId(editData.options.length + 1)
+      setErrors({})
+    } else {
+      setQuestion("")
+      setOptions([
+        { id: 1, text: "" }, { id: 2, text: "" },
+        { id: 3, text: "" }, { id: 4, text: "" },
+      ])
+      setCorrectIds([])
+      setNextId(5)
+      setErrors({})
+    }
+  }, [editData])
 
   const toggleCorrect = (id) =>
     setCorrectIds((prev) =>
@@ -45,41 +70,66 @@ function QuestionCard({ questionNumber, onSave }) {
     onSave?.({
       question,
       options: options.map((o) => o.text),
-      correctAnswers: options.filter((o) => correctIds.includes(o.id)).map((o) => o.text),
+      correctAnswers: options
+        .filter((o) => correctIds.includes(o.id))
+        .map((o) => o.text),
     })
-    setQuestion("")
-    setOptions([
-      { id: 1, text: "" }, { id: 2, text: "" },
-      { id: 3, text: "" }, { id: 4, text: "" },
-    ])
-    setCorrectIds([])
-    setNextId(5)
   }
 
   return (
-    <div className="panel">
-      <div className="panel-header">
-        <h3>New Question {questionNumber ? `— Q${questionNumber}` : ""}</h3>
+    <div className={`panel ${isEditing ? "panel-editing" : ""}`}>
+      <div className="panel-header space-between">
+        <h3>
+          {isEditing ? `Editing Q${questionNumber}` : `New Question — Q${questionNumber}`}
+        </h3>
+        {isEditing && <span className="editing-badge">Editing</span>}
       </div>
       <div className="panel-body">
 
         <div className="field">
           <label>Question text</label>
-          <input type="text" placeholder="Enter your question" value={question}
-            onChange={(e) => { setQuestion(e.target.value); setErrors((p) => ({ ...p, question: undefined })) }} />
+          <input
+            type="text"
+            placeholder="Enter your question"
+            value={question}
+            onChange={(e) => {
+              setQuestion(e.target.value)
+              setErrors((p) => ({ ...p, question: undefined }))
+            }}
+          />
           {errors.question && <p className="error">{errors.question}</p>}
         </div>
 
         <div className="field">
-          <label>Options <span className="hint">(check all correct answers)</span></label>
+          <label>
+            Options <span className="hint">(check all correct answers)</span>
+          </label>
           {options.map((opt, index) => (
             <div key={opt.id} className="option-row">
-              <input type="checkbox" checked={correctIds.includes(opt.id)}
-                onChange={() => { toggleCorrect(opt.id); setErrors((p) => ({ ...p, correct: undefined })) }} />
-              <input type="text" placeholder={`Option ${index + 1}`} value={opt.text}
-                onChange={(e) => { updateOption(opt.id, e.target.value); setErrors((p) => ({ ...p, options: undefined })) }} />
+              <input
+                type="checkbox"
+                checked={correctIds.includes(opt.id)}
+                onChange={() => {
+                  toggleCorrect(opt.id)
+                  setErrors((p) => ({ ...p, correct: undefined }))
+                }}
+              />
+              <input
+                type="text"
+                placeholder={`Option ${index + 1}`}
+                value={opt.text}
+                onChange={(e) => {
+                  updateOption(opt.id, e.target.value)
+                  setErrors((p) => ({ ...p, options: undefined }))
+                }}
+              />
               {options.length > 2 && (
-                <button className="btn-remove" onClick={() => removeOption(opt.id)}>✕</button>
+                <button
+                  className="btn-remove"
+                  onClick={() => removeOption(opt.id)}
+                >
+                  ✕
+                </button>
               )}
             </div>
           ))}
@@ -88,8 +138,17 @@ function QuestionCard({ questionNumber, onSave }) {
         </div>
 
         <div className="btn-row">
-          <button className="btn-outline" onClick={addOption}>+ Add Option</button>
-          <button className="btn-green" onClick={handleSave}>Save Question</button>
+          <button className="btn-outline" onClick={addOption}>
+            + Add Option
+          </button>
+          {isEditing && (
+            <button className="btn-cancel" onClick={onCancelEdit}>
+              Cancel
+            </button>
+          )}
+          <button className="btn-green" onClick={handleSave}>
+            {isEditing ? "Update Question" : "Save Question"}
+          </button>
         </div>
 
       </div>
