@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Globe, Lock, Link, CheckCircle } from 'lucide-react'
 
 const CATEGORIES = [
   'General Knowledge', 'Technology', 'Science', 'Mathematics',
@@ -52,9 +53,7 @@ function QuizSettings({ onSave, initialData }) {
 
   return (
     <div className="panel">
-      <div className="panel-header">
-        <h3>Quiz Settings</h3>
-      </div>
+      <div className="panel-header"><h3>Quiz Settings</h3></div>
       <div className="panel-body">
 
         <span className="section-label">Basic Info</span>
@@ -104,14 +103,17 @@ function QuizSettings({ onSave, initialData }) {
 
         <div className="visibility-row">
           {[
-            { value: 'public',  label: '🌐 Public',    desc: 'Anyone can find it'    },
-            { value: 'private', label: '🔒 Private',   desc: 'Only you'              },
-            { value: 'link',    label: '🔗 Link only', desc: 'Anyone with the link'  },
+            { value: 'public',  icon: <Globe  size={14} />, label: 'Public',    desc: 'Anyone can find it'   },
+            { value: 'private', icon: <Lock   size={14} />, label: 'Private',   desc: 'Only you'             },
+            { value: 'link',    icon: <Link   size={14} />, label: 'Link only', desc: 'Anyone with the link' },
           ].map((v) => (
             <div key={v.value}
               className={`visibility-card ${visibility === v.value ? 'active' : ''}`}
               onClick={() => setVisibility(v.value)}>
-              <span className="visibility-label">{v.label}</span>
+              <span className="visibility-label">
+                <span style={{ marginRight: 6 }}>{v.icon}</span>
+                {v.label}
+              </span>
               <span className="visibility-desc">{v.desc}</span>
             </div>
           ))}
@@ -144,7 +146,10 @@ function QuizSettings({ onSave, initialData }) {
         <div className="btn-row">
           <button className="btn-outline" onClick={handleReset}>Reset</button>
           <button className="btn-green" onClick={handleSave}>
-            {saved ? '✓ Saved!' : 'Save Settings'}
+            {saved
+              ? <><CheckCircle size={14} style={{ marginRight: 5 }} />Saved!</>
+              : 'Save Settings'
+            }
           </button>
         </div>
 

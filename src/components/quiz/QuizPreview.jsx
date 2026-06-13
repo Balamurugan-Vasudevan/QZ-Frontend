@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import { X, ChevronLeft, ChevronRight, Send, RotateCcw } from 'lucide-react'
 
 function QuizPreview({ quizSettings, questions, onClose }) {
-  const [current, setCurrent]   = useState(0)
-  const [selected, setSelected] = useState({})
+  const [current, setCurrent]     = useState(0)
+  const [selected, setSelected]   = useState({})
   const [submitted, setSubmitted] = useState(false)
 
   const q = questions[current]
@@ -20,12 +21,17 @@ function QuizPreview({ quizSettings, questions, onClose }) {
 
   const handleSubmit = () => setSubmitted(true)
 
+  const handleRetry = () => {
+    setCurrent(0)
+    setSelected({})
+    setSubmitted(false)
+  }
+
   const score = submitted
     ? questions.reduce((acc, q, i) => {
-        const sel = selected[i] || []
+        const sel     = selected[i] || []
         const correct = q.correctAnswers
-        const isRight =
-          sel.length === correct.length && correct.every((c) => sel.includes(c))
+        const isRight = sel.length === correct.length && correct.every((c) => sel.includes(c))
         return isRight ? acc + 1 : acc
       }, 0)
     : 0
@@ -33,9 +39,12 @@ function QuizPreview({ quizSettings, questions, onClose }) {
   return (
     <div className="preview-overlay">
       <div className="preview-modal">
+
         <div className="preview-header">
           <h2>{quizSettings?.title || 'Quiz Preview'}</h2>
-          <button className="btn-remove" onClick={onClose}>✕</button>
+          <button className="btn-remove" onClick={onClose}>
+            <X size={16} />
+          </button>
         </div>
 
         {!submitted ? (
@@ -63,26 +72,24 @@ function QuizPreview({ quizSettings, questions, onClose }) {
             <div className="preview-nav">
               <button className="btn-outline"
                 onClick={() => setCurrent((p) => p - 1)} disabled={current === 0}>
-                ← Prev
+                <ChevronLeft size={14} style={{ marginRight: 4 }} /> Prev
               </button>
               {current < questions.length - 1
                 ? <button className="btn-green" onClick={() => setCurrent((p) => p + 1)}>
-                    Next →
+                    Next <ChevronRight size={14} style={{ marginLeft: 4 }} />
                   </button>
-                : <button className="btn-green" onClick={handleSubmit}>Submit</button>
+                : <button className="btn-green" onClick={handleSubmit}>
+                    <Send size={13} style={{ marginRight: 5 }} /> Submit
+                  </button>
               }
             </div>
           </>
         ) : (
           <div className="preview-result">
-            <div className="result-score">
-              {score}/{questions.length}
-            </div>
+            <div className="result-score">{score}/{questions.length}</div>
             <p className="result-label">
-              {score === questions.length
-                ? '🎉 Perfect score!'
-                : score >= questions.length / 2
-                ? '👍 Good job!'
+              {score === questions.length ? '🎉 Perfect score!'
+                : score >= questions.length / 2 ? '👍 Good job!'
                 : '📚 Keep practicing!'}
             </p>
             {quizSettings?.passingScore && (
@@ -93,11 +100,17 @@ function QuizPreview({ quizSettings, questions, onClose }) {
                 </strong>
               </p>
             )}
-            <button className="btn-green" style={{ marginTop: 16 }} onClick={onClose}>
-              Close Preview
-            </button>
+            <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+              <button className="btn-outline" onClick={handleRetry}>
+                <RotateCcw size={13} style={{ marginRight: 5 }} /> Retry
+              </button>
+              <button className="btn-green" onClick={onClose}>
+                <X size={13} style={{ marginRight: 5 }} /> Close
+              </button>
+            </div>
           </div>
         )}
+
       </div>
     </div>
   )

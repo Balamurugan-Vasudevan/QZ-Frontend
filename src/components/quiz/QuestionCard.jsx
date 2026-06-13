@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Plus, X, Save, RefreshCw } from 'lucide-react'
 
 function QuestionCard({ questionNumber, editData, isEditing, onSave, onCancelEdit }) {
   const [question, setQuestion] = useState('')
@@ -93,7 +94,9 @@ function QuestionCard({ questionNumber, editData, isEditing, onSave, onCancelEdi
               <input type="text" placeholder={`Option ${index + 1}`} value={opt.text}
                 onChange={(e) => { updateOption(opt.id, e.target.value); setErrors((p) => ({ ...p, options: undefined })) }} />
               {options.length > 2 && (
-                <button className="btn-remove" onClick={() => removeOption(opt.id)}>✕</button>
+                <button className="btn-remove" onClick={() => removeOption(opt.id)}>
+                  <X size={13} />
+                </button>
               )}
             </div>
           ))}
@@ -102,9 +105,16 @@ function QuestionCard({ questionNumber, editData, isEditing, onSave, onCancelEdi
         </div>
 
         <div className="btn-row">
-          <button className="btn-outline" onClick={addOption}>+ Add Option</button>
-          {isEditing && <button className="btn-cancel" onClick={onCancelEdit}>Cancel</button>}
+          <button className="btn-outline" onClick={addOption}>
+            <Plus size={13} style={{ marginRight: 4 }} /> Add Option
+          </button>
+          {isEditing && (
+            <button className="btn-cancel" onClick={onCancelEdit}>
+              <RefreshCw size={13} style={{ marginRight: 4 }} /> Cancel
+            </button>
+          )}
           <button className="btn-green" onClick={handleSave}>
+            <Save size={13} style={{ marginRight: 5 }} />
             {isEditing ? 'Update Question' : 'Save Question'}
           </button>
         </div>

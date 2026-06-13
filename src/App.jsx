@@ -1,39 +1,46 @@
-import { useState } from 'react'
-import Login from './components/auth/Login'
-import Signup from './components/auth/Signup'
-import Dashboard from './components/dashboard/Dashboard'
-import QuizBuilder from './components/quiz/QuizBuilder'
-import Navbar from './components/shared/Navbar'
+import { useState }    from 'react'
+import { useAuth }     from './context/AuthContext'
+import Login           from './components/auth/Login'
+import Signup          from './components/auth/Signup'
+import Dashboard       from './components/dashboard/Dashboard'
+import QuizBuilder     from './components/quiz/QuizBuilder'
+import Navbar          from './components/shared/Navbar'
 
 function App() {
-  const [page, setPage]   = useState('login')   // login | signup | dashboard | builder
-  const [user, setUser]   = useState(null)
-  const [editQuiz, setEditQuiz] = useState(null)
+  const { user, logout, loading } = useAuth()
+  const [page, setPage]           = useState('dashboard')
+  const [editQuiz, setEditQuiz]   = useState(null)
+  const [authPage, setAuthPage]   = useState('login')
 
-  const handleLogin  = (userData) => { setUser(userData); setPage('dashboard') }
-  const handleSignup = (userData) => { setUser(userData); setPage('dashboard') }
-  const handleLogout = ()         => { setUser(null);     setPage('login') }
-
-  const goToBuilder  = (quiz = null) => { setEditQuiz(quiz); setPage('builder') }
-  const goToDashboard = ()           => { setEditQuiz(null); setPage('dashboard') }
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner" />
+        <p>Loading...</p>
+      </div>
+    )
+  }
 
   if (!user) {
     return (
       <div className="auth-wrapper">
-        {page === 'login'
-          ? <Login onLogin={handleLogin} onGoSignup={() => setPage('signup')} />
-          : <Signup onSignup={handleSignup} onGoLogin={() => setPage('login')} />
+        {authPage === 'login'
+          ? <Login onGoSignup={() => setAuthPage('signup')} />
+          : <Signup onGoLogin={() => setAuthPage('login')} />
         }
       </div>
     )
   }
 
+  const goToBuilder   = (quiz = null) => { setEditQuiz(quiz); setPage('builder')   }
+  const goToDashboard = ()            => { setEditQuiz(null); setPage('dashboard') }
+
   return (
     <div className="app">
-      <Navbar user={user} onLogout={handleLogout} onDashboard={goToDashboard} />
+      <Navbar onLogout={logout} onDashboard={goToDashboard} />
       {page === 'dashboard'
-        ? <Dashboard user={user} onCreateQuiz={() => goToBuilder(null)} onEditQuiz={goToBuilder} />
-        : <QuizBuilder user={user} editQuiz={editQuiz} onBack={goToDashboard} />
+        ? <Dashboard onCreateQuiz={() => goToBuilder(null)} onEditQuiz={goToBuilder} />
+        : <QuizBuilder editQuiz={editQuiz} onBack={goToDashboard} />
       }
     </div>
   )
