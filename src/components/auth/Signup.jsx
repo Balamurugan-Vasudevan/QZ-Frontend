@@ -1,5 +1,5 @@
-import { useState }  from 'react'
-import { Mail, Lock, User, UserPlus } from 'lucide-react'
+import { useState }     from 'react'
+import { Mail, Lock, User, UserPlus, GraduationCap, BookOpen } from 'lucide-react'
 import { registerUser } from '../../api/authService'
 
 function Signup({ onGoLogin }) {
@@ -7,6 +7,7 @@ function Signup({ onGoLogin }) {
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm]   = useState('')
+  const [role, setRole]         = useState('student')
   const [errors, setErrors]     = useState({})
   const [loading, setLoading]   = useState(false)
   const [apiError, setApiError] = useState('')
@@ -14,10 +15,10 @@ function Signup({ onGoLogin }) {
 
   const validate = () => {
     const errs = {}
-    if (!name.trim())         errs.name     = 'Name is required.'
-    if (!email.trim())        errs.email    = 'Email is required.'
-    if (password.length < 6)  errs.password = 'Password must be at least 6 characters.'
-    if (password !== confirm)  errs.confirm  = 'Passwords do not match.'
+    if (!name.trim())        errs.name     = 'Name is required.'
+    if (!email.trim())       errs.email    = 'Email is required.'
+    if (password.length < 6) errs.password = 'Password must be at least 6 characters.'
+    if (password !== confirm) errs.confirm = 'Passwords do not match.'
     return errs
   }
 
@@ -27,12 +28,9 @@ function Signup({ onGoLogin }) {
     setLoading(true)
     setApiError('')
     try {
-      await registerUser({ name, email, password })
-      // show success message then redirect to login
+      await registerUser({ name, email, password, role })
       setSuccess(true)
-      setTimeout(() => {
-        onGoLogin()
-      }, 2000)
+      setTimeout(() => onGoLogin(), 2000)
     } catch (err) {
       setApiError(err.response?.data?.detail || 'Signup failed. Try again.')
     } finally {
@@ -40,7 +38,6 @@ function Signup({ onGoLogin }) {
     }
   }
 
-  // success state — show before redirecting
   if (success) {
     return (
       <div className="auth-card">
@@ -58,9 +55,32 @@ function Signup({ onGoLogin }) {
     <div className="auth-card">
       <div className="auth-logo">QZ</div>
       <h2 className="auth-title">Create account</h2>
-      <p className="auth-subtitle">Start building quizzes for free</p>
+      <p className="auth-subtitle">Start building or taking quizzes</p>
 
       {apiError && <p className="api-error">{apiError}</p>}
+
+      {/* Role selector */}
+      <div className="field">
+        <label>I am a</label>
+        <div className="role-selector">
+          <div
+            className={`role-card ${role === 'student' ? 'active' : ''}`}
+            onClick={() => setRole('student')}
+          >
+            <GraduationCap size={22} />
+            <span>Student</span>
+            <p>Take quizzes</p>
+          </div>
+          <div
+            className={`role-card ${role === 'admin' ? 'active' : ''}`}
+            onClick={() => setRole('admin')}
+          >
+            <BookOpen size={22} />
+            <span>Teacher</span>
+            <p>Create quizzes</p>
+          </div>
+        </div>
+      </div>
 
       <div className="field">
         <label>Full Name</label>
@@ -105,7 +125,7 @@ function Signup({ onGoLogin }) {
       <button className="btn-green full-width" onClick={handleSignup} disabled={loading}>
         {loading
           ? 'Creating account...'
-          : <><UserPlus size={14} style={{ marginRight: 6 }} />Sign Up</>
+          : <><UserPlus size={14} style={{ marginRight: 6 }} />Sign Up as {role === 'admin' ? 'Teacher' : 'Student'}</>
         }
       </button>
 

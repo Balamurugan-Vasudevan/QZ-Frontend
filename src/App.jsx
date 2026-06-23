@@ -5,12 +5,15 @@ import Signup          from './components/auth/Signup'
 import Dashboard       from './components/dashboard/Dashboard'
 import QuizBuilder     from './components/quiz/QuizBuilder'
 import Navbar          from './components/shared/Navbar'
+import StudentDashboard from './components/student/StudentDashboard'
+import TakeQuiz        from './components/student/TakeQuiz'
 
 function App() {
   const { user, logout, loading } = useAuth()
   const [page, setPage]           = useState('dashboard')
   const [editQuiz, setEditQuiz]   = useState(null)
   const [authPage, setAuthPage]   = useState('login')
+  const [activeQuiz, setActiveQuiz] = useState(null)
 
   if (loading) {
     return (
@@ -32,15 +35,32 @@ function App() {
     )
   }
 
-  const goToBuilder   = (quiz = null) => { setEditQuiz(quiz); setPage('builder')   }
-  const goToDashboard = ()            => { setEditQuiz(null); setPage('dashboard') }
+  // ── Admin routes ──────────────────────────
+  if (user.role === 'admin') {
+    const goToBuilder   = (quiz = null) => { setEditQuiz(quiz); setPage('builder')   }
+    const goToDashboard = ()            => { setEditQuiz(null); setPage('dashboard') }
 
+    return (
+      <div className="app">
+        <Navbar onLogout={logout} onDashboard={goToDashboard} />
+        {page === 'dashboard'
+          ? <Dashboard onCreateQuiz={() => goToBuilder(null)} onEditQuiz={goToBuilder} />
+          : <QuizBuilder editQuiz={editQuiz} onBack={goToDashboard} />
+        }
+      </div>
+    )
+  }
+
+  // ── Student routes ────────────────────────
   return (
     <div className="app">
-      <Navbar onLogout={logout} onDashboard={goToDashboard} />
+      <Navbar
+        onLogout={logout}
+        onDashboard={() => { setActiveQuiz(null); setPage('dashboard') }}
+      />
       {page === 'dashboard'
-        ? <Dashboard onCreateQuiz={() => goToBuilder(null)} onEditQuiz={goToBuilder} />
-        : <QuizBuilder editQuiz={editQuiz} onBack={goToDashboard} />
+        ? <StudentDashboard onTakeQuiz={(quiz) => { setActiveQuiz(quiz); setPage('take-quiz') }} />
+        : <TakeQuiz quiz={activeQuiz} onBack={() => setPage('dashboard')} />
       }
     </div>
   )
